@@ -9,8 +9,12 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['sues-votex.onrender.com', 'localhost', '127.0.0.1']
-
+ALLOWED_HOSTS = [
+    'studentunionelectionsystem.onrender.com',
+    'sues-votex.onrender.com',
+    'localhost',
+    '127.0.0.1'
+]
 INSTALLED_APPS = [
     'widget_tweaks',
     'django.contrib.admin',
