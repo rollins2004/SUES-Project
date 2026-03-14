@@ -7,7 +7,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'change-this-in-production-use-env-var
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+DEBUG = False
+
+ALLOWED_HOSTS = ['sues-votex.onrender.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'widget_tweaks',
