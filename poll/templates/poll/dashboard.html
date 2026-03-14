@@ -1,0 +1,424 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — VoteX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --neon-blue: #00d4ff; --neon-violet: #bf5fff;
+      --neon-gold: #ffd700; --neon-green: #00ff88; --neon-red: #ff3366;
+      --bg-dark: #030712; --bg-card: rgba(10,20,40,0.85);
+      --text-primary: #e2f0ff; --text-muted: #6b8ab0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-dark); color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif; min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 70% 60% at 10% 20%, rgba(0,212,255,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 90% 80%, rgba(191,95,255,0.05) 0%, transparent 60%),
+        linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 50px 50px, 50px 50px;
+      background-attachment: fixed;
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(3,7,18,0.95); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,212,255,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 70px;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+    }
+    .nav-brand {
+      font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.3rem;
+      color: var(--neon-blue); letter-spacing: 3px; text-decoration: none;
+      text-shadow: 0 0 25px rgba(0,212,255,0.7); display: flex; align-items: center; gap: 10px;
+    }
+    .nav-brand-icon { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-violet)); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0,212,255,0.5); }
+    .nav-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .nav-link { font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 0.45rem 1rem; border-radius: 7px; border: 1px solid transparent; transition: all 0.3s; }
+    .nav-link:hover { color: var(--neon-blue); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.08); }
+    .nav-logout { color: var(--neon-red); border-color: rgba(255,51,102,0.3); background: rgba(255,51,102,0.06); }
+    .nav-logout:hover { background: rgba(255,51,102,0.15); }
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.18);
+      border-radius: 100px; padding: 0.3rem 1rem 0.3rem 0.4rem;
+    }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(0,212,255,0.4); }
+    .user-name { font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 700; color: var(--neon-blue); letter-spacing: 1px; }
+
+    /* ─── PAGE LAYOUT ─── */
+    .page { max-width: 1300px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+    /* ─── WELCOME BANNER ─── */
+    .welcome-banner {
+      background: var(--bg-card); border: 1px solid rgba(0,212,255,0.18);
+      border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+      flex-wrap: wrap; backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      position: relative; overflow: hidden;
+      animation: fadeInUp 0.6s ease;
+    }
+    .welcome-banner::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+    }
+    .welcome-left { display: flex; align-items: center; gap: 1.5rem; }
+    .avatar-ring {
+      width: 80px; height: 80px; border-radius: 50%; padding: 3px;
+      background: linear-gradient(135deg, var(--neon-blue), var(--neon-violet));
+      flex-shrink: 0;
+    }
+    .avatar-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid var(--bg-dark); }
+    .welcome-text {}
+    .welcome-greeting { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--neon-green); letter-spacing: 3px; text-transform: uppercase; }
+    .welcome-name { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--text-primary); margin-top: 0.25rem; }
+    .welcome-sub { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .welcome-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+    .phase-badge {
+      font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 2px;
+      font-weight: 700; text-transform: uppercase; padding: 0.45rem 1.2rem;
+      border-radius: 100px;
+    }
+    .badge-nomination { background: rgba(255,215,0,0.12); color: var(--neon-gold); border: 1px solid rgba(255,215,0,0.35); }
+    .badge-voting { background: rgba(0,255,136,0.12); color: var(--neon-green); border: 1px solid rgba(0,255,136,0.35); animation: badge-pulse 2s ease infinite; }
+    .badge-result { background: rgba(191,95,255,0.12); color: var(--neon-violet); border: 1px solid rgba(191,95,255,0.35); }
+    .badge-none { background: rgba(107,138,176,0.1); color: var(--text-muted); border: 1px solid rgba(107,138,176,0.2); }
+    @keyframes badge-pulse { 0%,100%{ box-shadow: 0 0 8px rgba(0,255,136,0.2); } 50%{ box-shadow: 0 0 25px rgba(0,255,136,0.5); } }
+
+    /* ─── ALERTS ─── */
+    .cyber-alert {
+      border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.92rem; font-weight: 500; border: 1px solid;
+      animation: fadeInUp 0.4s ease;
+    }
+    .alert-success { background: rgba(0,255,136,0.07); border-color: rgba(0,255,136,0.3); color: var(--neon-green); }
+    .alert-error, .alert-danger { background: rgba(255,51,102,0.07); border-color: rgba(255,51,102,0.3); color: var(--neon-red); }
+    .alert-info, .alert-warning { background: rgba(0,212,255,0.07); border-color: rgba(0,212,255,0.25); color: var(--neon-blue); }
+
+    /* ─── PHASE BANNER ─── */
+    .phase-info {
+      border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 2rem;
+      border: 1px solid; display: flex; align-items: center; gap: 1rem;
+      flex-wrap: wrap; backdrop-filter: blur(10px);
+      animation: fadeInUp 0.5s ease 0.1s both;
+    }
+    .phase-info.nomination { background: rgba(255,215,0,0.05); border-color: rgba(255,215,0,0.2); }
+    .phase-info.voting { background: rgba(0,255,136,0.05); border-color: rgba(0,255,136,0.2); }
+    .phase-info.result { background: rgba(191,95,255,0.05); border-color: rgba(191,95,255,0.2); }
+    .phase-info.no-phase { background: rgba(107,138,176,0.05); border-color: rgba(107,138,176,0.15); }
+    .phase-icon { font-size: 2rem; }
+    .phase-text {}
+    .phase-title { font-family: 'Orbitron', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; }
+    .phase-desc { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .phase-info .btn-results {
+      margin-left: auto; font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 0.82rem; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none;
+      background: linear-gradient(135deg, #6600cc, var(--neon-violet));
+      color: #fff; box-shadow: 0 0 20px rgba(191,95,255,0.3);
+      transition: all 0.3s; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .phase-info .btn-results:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(191,95,255,0.5); }
+
+    /* ─── SECTION HEADER ─── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .section-title { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; letter-spacing: 2px; color: var(--neon-blue); }
+    .section-count { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1px; }
+
+    /* ─── CANDIDATE CARDS ─── */
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem; margin-bottom: 2rem;
+    }
+    .candidate-card {
+      background: var(--bg-card); border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 18px; overflow: hidden; position: relative;
+      transition: all 0.4s ease; cursor: pointer;
+      backdrop-filter: blur(15px);
+      animation: fadeInUp 0.5s ease both;
+    }
+    .candidate-card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(0,212,255,0.4); box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,212,255,0.1); }
+    .candidate-card.voted { border-color: rgba(0,255,136,0.25); opacity: 0.8; }
+    .candidate-card.voted:hover { transform: translateY(-4px); }
+
+    .card-img-wrap { position: relative; height: 200px; overflow: hidden; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .candidate-card:hover .card-img-wrap img { transform: scale(1.08); }
+    .img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(3,7,18,0.9) 0%, transparent 60%);
+    }
+    .card-position-badge {
+      position: absolute; top: 12px; right: 12px;
+      font-family: 'Rajdhani', sans-serif; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 100px;
+      background: rgba(0,212,255,0.15); color: var(--neon-blue);
+      border: 1px solid rgba(0,212,255,0.35); backdrop-filter: blur(10px);
+    }
+
+    .card-body { padding: 1.25rem 1.5rem 1.5rem; }
+    .candidate-name { font-family: 'Orbitron', sans-serif; font-size: 0.95rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 0.3rem; }
+    .candidate-position { font-size: 0.82rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; font-family: 'Share Tech Mono', monospace; margin-bottom: 0.5rem; }
+    .manifesto-preview { font-size: 0.84rem; color: rgba(226,240,255,0.6); line-height: 1.5; margin-bottom: 1.25rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+    .btn-vote {
+      width: 100%; padding: 0.75rem; border-radius: 10px; border: none; cursor: pointer;
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      transition: all 0.3s; text-decoration: none; display: flex;
+      align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-vote-active {
+      background: linear-gradient(135deg, #0055bb, var(--neon-blue));
+      color: #000; box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    }
+    .btn-vote-active:hover { box-shadow: 0 0 40px rgba(0,212,255,0.6); transform: none; }
+    .btn-vote-done {
+      background: rgba(0,255,136,0.08); color: var(--neon-green);
+      border: 1px solid rgba(0,255,136,0.3); cursor: default;
+    }
+
+    /* ─── NOMINATION STATE ─── */
+    .nomination-illustration {
+      text-align: center; padding: 4rem 2rem;
+      background: rgba(255,215,0,0.03); border: 1px solid rgba(255,215,0,0.1);
+      border-radius: 20px;
+    }
+    .nomination-illustration .big-icon { font-size: 5rem; margin-bottom: 1.5rem; opacity: 0.6; }
+    .nomination-illustration h3 { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--neon-gold); margin-bottom: 1rem; }
+    .nomination-illustration p { color: var(--text-muted); max-width: 400px; margin: 0 auto; line-height: 1.7; }
+
+    /* ─── VOTE PROGRESS ─── */
+    .vote-progress {
+      background: var(--bg-card); border: 1px solid rgba(0,212,255,0.12);
+      border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 2rem;
+      display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+      backdrop-filter: blur(15px);
+    }
+    .progress-bar-wrap { flex: 1; min-width: 200px; }
+    .progress-label { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 2px; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; }
+    .progress-track { height: 6px; background: rgba(0,212,255,0.1); border-radius: 100px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--neon-blue), var(--neon-violet)); transition: width 1s ease; box-shadow: 0 0 10px rgba(0,212,255,0.4); }
+    .progress-count { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; color: var(--neon-blue); white-space: nowrap; }
+    .progress-sub { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1px; }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    footer { text-align: center; padding: 1.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 2px; border-top: 1px solid rgba(0,212,255,0.08); margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="{% url 'dashboard' %}" class="nav-brand">
+    <div class="nav-brand-icon"><i class="fas fa-vote-yea"></i></div>
+    VOTEX
+  </a>
+  <div class="nav-actions">
+    <div class="user-chip">
+      {% if user.studentprofile.profile_pic and user.studentprofile.profile_pic.url %}
+        <img class="user-avatar" src="{{ user.studentprofile.profile_pic.url }}" alt="Avatar">
+      {% else %}
+        <div class="user-avatar" style="background:linear-gradient(135deg,var(--neon-blue),var(--neon-violet));display:flex;align-items:center;justify-content:center;font-size:0.8rem;"><i class="fas fa-user"></i></div>
+      {% endif %}
+      <span class="user-name">{{ user.username }}</span>
+    </div>
+    <a href="{% url 'edit_profile' %}" class="nav-link"><i class="fas fa-user-edit"></i> Profile</a>
+    <a href="{% url 'changepass' %}" class="nav-link"><i class="fas fa-key"></i> Password</a>
+    <a href="{% url 'logout' %}" class="nav-link nav-logout"><i class="fas fa-power-off"></i> Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- Messages -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="cyber-alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Welcome Banner -->
+  <div class="welcome-banner">
+    <div class="welcome-left">
+      <div class="avatar-ring">
+        {% if user.studentprofile.profile_pic and user.studentprofile.profile_pic.url %}
+          <img src="{{ user.studentprofile.profile_pic.url }}" alt="Profile">
+        {% else %}
+          <img src="{% static 'poll/images/images.png' %}" alt="Profile">
+        {% endif %}
+      </div>
+      <div class="welcome-text">
+        <div class="welcome-greeting">// Welcome back, voter</div>
+        <div class="welcome-name">{{ user.studentprofile.Full_name|default:user.username }}</div>
+        <div class="welcome-sub">
+          {{ user.studentprofile.registration_number }} &nbsp;·&nbsp;
+          {{ user.studentprofile.course|default:"Student" }} &nbsp;·&nbsp;
+          Year {{ user.studentprofile.year|default:"—" }}
+        </div>
+      </div>
+    </div>
+    <div class="welcome-right">
+      {% if phase %}
+        <span class="phase-badge badge-{{ phase.phase|lower }}">{{ phase.phase }} Phase</span>
+      {% else %}
+        <span class="phase-badge badge-none">No Active Phase</span>
+      {% endif %}
+      <span style="font-family:'Share Tech Mono',monospace; font-size:0.72rem; color:var(--text-muted); letter-spacing:1px;">STUDENT UNION ELECTIONS 2026</span>
+    </div>
+  </div>
+
+  <!-- Phase Info Banner -->
+  {% if phase %}
+    {% if phase.phase == 'Nomination' %}
+      <div class="phase-info nomination">
+        <div class="phase-icon">📋</div>
+        <div class="phase-text">
+          <div class="phase-title" style="color:var(--neon-gold);">Nomination Phase Active</div>
+          <div class="phase-desc">Candidates are being nominated. Want to participate? Visit the department office to submit your nomination.</div>
+        </div>
+      </div>
+    {% elif phase.phase == 'Voting' %}
+      <div class="phase-info voting">
+        <div class="phase-icon">🗳️</div>
+        <div class="phase-text">
+          <div class="phase-title" style="color:var(--neon-green);">⚡ Voting is Now Live!</div>
+          <div class="phase-desc">The ballot is open. Choose your representatives carefully — your vote matters!</div>
+        </div>
+      </div>
+    {% elif phase.phase == 'Result' %}
+      <div class="phase-info result">
+        <div class="phase-icon">🏆</div>
+        <div class="phase-text">
+          <div class="phase-title" style="color:var(--neon-violet);">Results Are In!</div>
+          <div class="phase-desc">Election results have been declared. Congratulations to all winners!</div>
+        </div>
+        <a href="{% url 'results' %}" class="btn-results"><i class="fas fa-trophy"></i> View Results</a>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="phase-info no-phase">
+      <div class="phase-icon">⏳</div>
+      <div class="phase-text">
+        <div class="phase-title">No Active Election Phase</div>
+        <div class="phase-desc">There is currently no active election phase. Check back soon!</div>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Voting Section -->
+  {% if phase and phase.phase == "Voting" %}
+    <!-- Progress -->
+    <div class="vote-progress">
+      <div class="progress-bar-wrap">
+        <div class="progress-label">Your Voting Progress</div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-bar"></div>
+        </div>
+      </div>
+      <div>
+        <div class="progress-count" id="voted-count">{{ voted_positions|length }}</div>
+        <div class="progress-sub">positions voted</div>
+      </div>
+    </div>
+
+    <!-- Candidates Grid -->
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-users"></i> Candidates</div>
+      <div class="section-count">{{ candidates|length }} candidate{{ candidates|length|pluralize }} registered</div>
+    </div>
+
+    <div class="candidates-grid">
+      {% for candidate in candidates %}
+        <div class="candidate-card {% if candidate.position in voted_positions %}voted{% endif %}" style="animation-delay: {{ forloop.counter0 }}00ms">
+          <div class="card-img-wrap">
+            {% if candidate.photo %}
+              <img src="{{ candidate.photo.url }}" alt="{{ candidate.name }}">
+            {% else %}
+              <img src="{% static 'poll/images/images.png' %}" alt="{{ candidate.name }}">
+            {% endif %}
+            <div class="img-overlay"></div>
+            <div class="card-position-badge">{{ candidate.position }}</div>
+          </div>
+          <div class="card-body">
+            <div class="candidate-name">{{ candidate.name }}</div>
+            <div class="candidate-position">{{ candidate.position }}</div>
+            {% if candidate.manifesto %}
+              <div class="manifesto-preview">{{ candidate.manifesto }}</div>
+            {% endif %}
+            {% if candidate.position in voted_positions %}
+              <div class="btn-vote btn-vote-done">
+                <i class="fas fa-check-circle"></i> Vote Cast ✓
+              </div>
+            {% else %}
+              <a href="{% url 'vote' candidate.id %}" class="btn-vote btn-vote-active"
+                 onclick="return confirm('Confirm your vote for {{ candidate.name }} as {{ candidate.position }}?')">
+                <i class="fas fa-vote-yea"></i> Cast Vote
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+          <i class="fas fa-user-slash" style="font-size:3rem; margin-bottom:1rem; display:block; opacity:0.4;"></i>
+          No candidates registered yet.
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align:center; padding:1.5rem; font-family:'Share Tech Mono',monospace; font-size:0.85rem; color:var(--neon-gold); opacity:0.7; letter-spacing:2px;">
+      "The ballot is stronger than the bullet." — Abraham Lincoln
+    </div>
+
+  {% elif phase and phase.phase == 'Nomination' %}
+    <div class="nomination-illustration">
+      <div class="big-icon">📋</div>
+      <h3>Nominations Are Open</h3>
+      <p>Candidates are currently being nominated for this election. Voting will begin once nominations close. Stay tuned!</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<footer>⚡ VOTEX — STUDENT UNION ELECTION SYSTEM © 2026</footer>
+
+<script>
+  // Progress bar
+  const total = {{ candidates|length }};
+  const voted = {{ voted_positions|length }};
+  const positions = new Set([{% for c in candidates %}"{{ c.position }}"{% if not forloop.last %},{% endif %}{% endfor %}]);
+  const totalPositions = positions.size;
+  const pct = totalPositions > 0 ? (voted / totalPositions) * 100 : 0;
+  const bar = document.getElementById('progress-bar');
+  if (bar) setTimeout(() => bar.style.width = pct + '%', 200);
+
+  // Card stagger
+  document.querySelectorAll('.candidate-card').forEach((card, i) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      card.style.transition = 'opacity 0.5s ease, transform 0.5s ease, box-shadow 0.4s ease, border-color 0.4s ease';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }, i * 80);
+  });
+</script>
+</body>
+</html>

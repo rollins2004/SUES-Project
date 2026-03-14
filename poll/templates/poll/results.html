@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Election Results — VoteX</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --neon-blue: #00d4ff; --neon-violet: #bf5fff;
+      --neon-gold: #ffd700; --neon-green: #00ff88; --neon-red: #ff3366;
+      --bg-dark: #030712; --text-primary: #e2f0ff; --text-muted: #6b8ab0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-dark); color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif; min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 70% 60% at 50% 20%, rgba(191,95,255,0.06) 0%, transparent 60%),
+        linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 50px 50px, 50px 50px;
+      background-attachment: fixed;
+    }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(3,7,18,0.95); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,212,255,0.15);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 70px;
+    }
+    .nav-brand { font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.3rem; color: var(--neon-blue); letter-spacing: 3px; text-decoration: none; text-shadow: 0 0 25px rgba(0,212,255,0.7); display: flex; align-items: center; gap: 10px; }
+    .nav-brand-icon { width: 36px; height: 36px; border-radius: 8px; background: linear-gradient(135deg, var(--neon-blue), var(--neon-violet)); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0,212,255,0.5); }
+    .nav-link { font-family: 'Rajdhani', sans-serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 0.45rem 1rem; border-radius: 7px; border: 1px solid transparent; transition: all 0.3s; }
+    .nav-link:hover { color: var(--neon-blue); border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.08); }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    /* ─── RESULTS HEADER ─── */
+    .results-header {
+      text-align: center; margin-bottom: 4rem;
+      animation: fadeInUp 0.7s ease;
+    }
+    .results-eyebrow { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; letter-spacing: 4px; color: var(--neon-violet); text-transform: uppercase; margin-bottom: 1rem; }
+    .results-title {
+      font-family: 'Orbitron', sans-serif; font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900; letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--neon-gold), var(--neon-violet));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 0.75rem;
+    }
+    .results-sub { font-size: 1rem; color: var(--text-muted); letter-spacing: 1px; }
+
+    /* ─── WINNERS PODIUM ─── */
+    .winners-section { margin-bottom: 4rem; }
+    .winners-label { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--neon-gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .winners-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,215,0,0.3), transparent); }
+
+    .winners-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
+    .winner-card {
+      background: rgba(15,25,50,0.9);
+      border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 20px; overflow: hidden; position: relative;
+      transition: all 0.4s ease;
+      box-shadow: 0 0 40px rgba(255,215,0,0.05), 0 20px 50px rgba(0,0,0,0.4);
+      animation: fadeInUp 0.6s ease both;
+    }
+    .winner-card:hover { transform: translateY(-8px); border-color: rgba(255,215,0,0.5); box-shadow: 0 0 60px rgba(255,215,0,0.15), 0 30px 60px rgba(0,0,0,0.5); }
+    .winner-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-gold), transparent);
+    }
+    .winner-img-wrap { position: relative; height: 220px; overflow: hidden; }
+    .winner-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .winner-card:hover .winner-img-wrap img { transform: scale(1.06); }
+    .winner-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(3,7,18,0.95) 0%, rgba(3,7,18,0.3) 50%, transparent 100%); }
+    .winner-crown {
+      position: absolute; top: 12px; left: 12px; font-size: 1.5rem;
+      background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.4);
+      border-radius: 10px; padding: 0.4rem 0.7rem;
+      backdrop-filter: blur(10px);
+    }
+    .winner-body { padding: 1.25rem 1.5rem 1.75rem; }
+    .winner-position { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 2px; color: var(--neon-gold); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .winner-name { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 900; margin-bottom: 0.5rem; }
+    .winner-votes { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; color: var(--text-muted); }
+    .vote-count { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,136,0.4); }
+
+    /* ─── FULL RESULTS TABLE ─── */
+    .results-table-section { margin-top: 4rem; }
+    .table-label { font-family: 'Orbitron', sans-serif; font-size: 0.8rem; letter-spacing: 3px; text-transform: uppercase; color: var(--neon-blue); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; }
+    .table-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(0,212,255,0.3), transparent); }
+
+    .results-table {
+      width: 100%; border-collapse: separate; border-spacing: 0 8px;
+    }
+    .results-table thead th {
+      font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted); padding: 0 1.25rem 0.75rem;
+      border-bottom: 1px solid rgba(0,212,255,0.1); text-align: left;
+    }
+    .results-table tbody tr {
+      background: rgba(10,20,40,0.7);
+      border: 1px solid rgba(0,212,255,0.08);
+      border-radius: 12px; transition: all 0.3s;
+      animation: fadeInUp 0.5s ease both;
+    }
+    .results-table tbody tr:hover { background: rgba(10,20,40,0.95); border-color: rgba(0,212,255,0.25); transform: translateX(4px); }
+    .results-table tbody tr.is-winner { border-color: rgba(255,215,0,0.2); background: rgba(15,25,40,0.9); }
+    .results-table td { padding: 1rem 1.25rem; vertical-align: middle; }
+    .results-table td:first-child { border-radius: 12px 0 0 12px; }
+    .results-table td:last-child { border-radius: 0 12px 12px 0; }
+
+    .result-photo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,212,255,0.25); }
+    .result-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem; }
+    .result-position { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 1.5px; color: var(--text-muted); text-transform: uppercase; }
+    .winner-star { color: var(--neon-gold); font-size: 0.85rem; margin-left: 6px; }
+
+    .vote-bar-cell { width: 200px; }
+    .vote-bar-track { height: 6px; background: rgba(0,212,255,0.1); border-radius: 100px; overflow: hidden; margin-top: 4px; }
+    .vote-bar-fill { height: 100%; border-radius: 100px; transition: width 1.2s ease; }
+    .vote-bar-num { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 900; color: var(--neon-blue); }
+
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Confetti container */
+    #confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+    footer { text-align: center; padding: 1.5rem; font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 2px; border-top: 1px solid rgba(0,212,255,0.08); margin-top: 3rem; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-brand-icon"><i class="fas fa-vote-yea"></i></div>
+    VOTEX
+  </a>
+  <div style="display:flex;gap:0.5rem;">
+    <a href="{% url 'dashboard' %}" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a>
+    <a href="{% url 'logout' %}" class="nav-link" style="color:var(--neon-red);border-color:rgba(255,51,102,0.3);"><i class="fas fa-power-off"></i> Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  {% if phase and phase.phase == "Result" %}
+
+  <div class="results-header">
+    <div class="results-eyebrow">// Election 2026 · Official Results</div>
+    <h1 class="results-title">🏆 RESULTS DECLARED</h1>
+    <p class="results-sub">Congratulations to all winners and thank you to every candidate for participating.</p>
+  </div>
+
+  <!-- WINNERS -->
+  {% if winners %}
+  <div class="winners-section">
+    <div class="winners-label"><i class="fas fa-crown"></i> Position Winners</div>
+    <div class="winners-grid">
+      {% for position, winner in winners.items %}
+      <div class="winner-card" style="animation-delay: {{ forloop.counter0 }}00ms;">
+        <div class="winner-img-wrap">
+          {% if winner.photo %}
+            <img src="{{ winner.photo.url }}" alt="{{ winner.name }}">
+          {% else %}
+            <img src="{% static 'poll/images/images.png' %}" alt="{{ winner.name }}">
+          {% endif %}
+          <div class="winner-overlay"></div>
+          <div class="winner-crown">👑</div>
+        </div>
+        <div class="winner-body">
+          <div class="winner-position">{{ position }}</div>
+          <div class="winner-name">{{ winner.name }}</div>
+          <div class="winner-votes">
+            <span class="vote-count">{{ winner.votes }}</span>
+            <span>votes received</span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- FULL TABLE -->
+  <div class="results-table-section">
+    <div class="table-label"><i class="fas fa-list-ol"></i> Complete Vote Tally</div>
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Photo</th>
+          <th>Candidate</th>
+          <th>Position</th>
+          <th>Votes</th>
+          <th>Share</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for result in results %}
+        {% with max_votes=results.0.votes %}
+        <tr class="{% for pos, w in winners.items %}{% if w.name == result.candidate.name %}is-winner{% endif %}{% endfor %}"
+            style="animation-delay: {{ forloop.counter0 }}80ms;">
+          <td>
+            {% if result.candidate.photo %}
+              <img src="{{ result.candidate.photo.url }}" class="result-photo" alt="{{ result.candidate.name }}">
+            {% else %}
+              <img src="{% static 'poll/images/images.png' %}" class="result-photo" alt="{{ result.candidate.name }}">
+            {% endif %}
+          </td>
+          <td>
+            <div class="result-name">
+              {{ result.candidate.name }}
+              {% for pos, w in winners.items %}{% if w.name == result.candidate.name %}<i class="fas fa-star winner-star"></i>{% endif %}{% endfor %}
+            </div>
+          </td>
+          <td><div class="result-position">{{ result.candidate.position }}</div></td>
+          <td>
+            <div class="vote-bar-num">{{ result.votes }}</div>
+            <div class="vote-bar-track">
+              <div class="vote-bar-fill"
+                   style="background: linear-gradient(90deg, var(--neon-blue), var(--neon-violet)); width:0%;"
+                   data-width="{% if max_votes > 0 %}{% widthratio result.votes max_votes 100 %}{% else %}0{% endif %}%">
+              </div>
+            </div>
+          </td>
+          <td>
+            <span style="font-family:'Orbitron',sans-serif; font-size:0.9rem; color:var(--text-muted);">
+              {% if max_votes > 0 %}{% widthratio result.votes max_votes 100 %}{% else %}0{% endif %}%
+            </span>
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;padding:3rem;color:var(--text-muted);">No results available.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+    <div style="text-align:center; padding:6rem 2rem;">
+      <div style="font-size:5rem; margin-bottom:1.5rem;">⏳</div>
+      <h2 style="font-family:'Orbitron',sans-serif; color:var(--neon-blue); margin-bottom:1rem;">Results Not Available Yet</h2>
+      <p style="color:var(--text-muted); margin-bottom:2rem;">Election results will be displayed here once the Result phase begins.</p>
+      <a href="{% url 'dashboard' %}" style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:0.88rem; letter-spacing:2px; text-transform:uppercase; padding:0.8rem 2rem; border-radius:10px; text-decoration:none; background:linear-gradient(135deg,#0055bb,#00d4ff); color:#000; display:inline-block;">← Back to Dashboard</a>
+    </div>
+  {% endif %}
+
+</div>
+
+<footer>⚡ VOTEX — STUDENT UNION ELECTION SYSTEM © 2026</footer>
+
+<script>
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll('.vote-bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width || '0%';
+    });
+  }, 300);
+
+  // Winner cards stagger
+  document.querySelectorAll('.winner-card').forEach((card, i) => {
+    card.style.opacity = '0'; card.style.transform = 'translateY(30px)';
+    setTimeout(() => {
+      card.style.transition = 'all 0.6s ease';
+      card.style.opacity = '1'; card.style.transform = 'translateY(0)';
+    }, 200 + i * 120);
+  });
+
+  // Confetti for winners
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const confetti = [];
+  const colors = ['#00d4ff','#bf5fff','#ffd700','#00ff88','#ff3366'];
+  for (let i = 0; i < 120; i++) {
+    confetti.push({
+      x: Math.random() * canvas.width, y: -20 - Math.random() * 100,
+      vx: (Math.random()-0.5) * 2, vy: 2 + Math.random() * 3,
+      size: 6 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI * 2, rotV: (Math.random()-0.5) * 0.15,
+      opacity: 0.9
+    });
+  }
+  let frame = 0;
+  function drawConfetti() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    frame++;
+    confetti.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV;
+      if (frame > 180) p.opacity -= 0.005;
+      if (p.y > canvas.height) { p.y = -20; p.x = Math.random() * canvas.width; }
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size/2);
+      ctx.restore();
+    });
+    if (frame < 300) requestAnimationFrame(drawConfetti);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  {% if phase and phase.phase == "Result" %}
+  setTimeout(drawConfetti, 500);
+  {% endif %}
+</script>
+</body>
+</html>

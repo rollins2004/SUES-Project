@@ -1,0 +1,120 @@
+{% extends "poll/base.html" %}
+{% block title %}Edit Profile — VoteX{% endblock %}
+{% block extra_css %}
+<style>
+  .page-wrap { max-width: 600px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+  .page-header { text-align: center; margin-bottom: 2.5rem; }
+  .page-icon { width: 70px; height: 70px; border-radius: 18px; margin: 0 auto 1.25rem; background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(191,95,255,0.15)); border: 1px solid rgba(0,212,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--neon-blue); }
+  .page-title { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; color: var(--neon-blue); }
+  .page-sub { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+  .cyber-form-card { background: rgba(10,20,40,0.88); border: 1px solid rgba(0,212,255,0.18); border-radius: 20px; padding: 2.5rem; backdrop-filter: blur(25px); box-shadow: 0 25px 80px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+  .cyber-form-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-violet), transparent); }
+
+  .form-section { font-family: 'Share Tech Mono', monospace; font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); margin: 1.5rem 0 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(0,212,255,0.1); }
+
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label { font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.45rem; display: block; }
+  .form-input { width: 100%; background: rgba(0,212,255,0.04); border: 1px solid rgba(0,212,255,0.18); border-radius: 10px; color: var(--text-primary); font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; padding: 0.8rem 1rem; transition: all 0.3s; outline: none; }
+  .form-input:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 3px rgba(0,212,255,0.12); background: rgba(0,212,255,0.07); }
+  .form-input[readonly] { opacity: 0.5; cursor: not-allowed; }
+  .form-hint { font-family: 'Share Tech Mono', monospace; font-size: 0.68rem; color: var(--text-muted); margin-top: 0.35rem; letter-spacing: 1px; }
+  select.form-input option { background: #0a1428; }
+
+  .btn-update { width: 100%; padding: 0.95rem; border-radius: 10px; border: none; cursor: pointer; font-family: 'Orbitron', sans-serif; font-size: 0.85rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #0055bb, var(--neon-blue)); color: #000; box-shadow: 0 0 25px rgba(0,212,255,0.35); transition: all 0.3s; margin-top: 0.5rem; }
+  .btn-update:hover { transform: translateY(-2px); box-shadow: 0 0 45px rgba(0,212,255,0.6); }
+  .btn-change-pw { display: block; text-align: center; margin-top: 1.25rem; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; color: var(--text-muted); text-decoration: none; padding: 0.75rem; border-radius: 10px; border: 1px solid rgba(0,212,255,0.15); transition: all 0.3s; }
+  .btn-change-pw:hover { color: var(--neon-blue); border-color: rgba(0,212,255,0.35); background: rgba(0,212,255,0.06); }
+
+  .current-pic { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
+  .current-pic img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(0,212,255,0.3); }
+  .current-pic-label { font-size: 0.82rem; color: var(--text-muted); }
+
+  .error-field { border-color: rgba(255,51,102,0.5) !important; }
+  .field-error { font-size: 0.78rem; color: var(--neon-red); margin-top: 0.3rem; font-family: 'Share Tech Mono', monospace; }
+
+  .cyber-alert { border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; border: 1px solid; }
+  .alert-error { background: rgba(255,51,102,0.08); border-color: rgba(255,51,102,0.3); color: var(--neon-red); }
+  .alert-success { background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.3); color: var(--neon-green); }
+  .alert-info { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.3); color: var(--neon-blue); }
+</style>
+{% endblock %}
+
+{% block content %}
+{% load widget_tweaks %}
+<div class="page-wrap">
+  <div class="page-header">
+    <div class="page-icon"><i class="fas fa-user-edit"></i></div>
+    <div class="page-title">EDIT PROFILE</div>
+    <div class="page-sub">Update your student information and profile photo</div>
+  </div>
+
+  <div class="cyber-form-card">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="cyber-alert {% if message.tags == 'error' %}alert-error{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+          <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="form-section">// Account Info (Read Only)</div>
+
+      <div class="form-group">
+        <label class="form-label">Registration Number</label>
+        <input type="text" class="form-input" value="{{ request.user.studentprofile.registration_number }}" readonly>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" class="form-input" value="{{ request.user.username }}" readonly>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" value="{{ request.user.studentprofile.Full_name }}" readonly>
+      </div>
+
+      <div class="form-section">// Editable Information</div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        {{ user_form.email|add_class:"form-input" }}
+        {% if user_form.email.errors %}
+          {% for error in user_form.email.errors %}<div class="field-error">⚠ {{ error }}</div>{% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Course</label>
+        {{ profile_form.course|add_class:"form-input" }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Year of Study</label>
+        {{ profile_form.year|add_class:"form-input" }}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Profile Photo</label>
+        {% if profile_form.instance.profile_pic %}
+          <div class="current-pic">
+            <img src="{{ profile_form.instance.profile_pic.url }}" alt="Current photo">
+            <span class="current-pic-label">Current photo</span>
+          </div>
+        {% endif %}
+        {{ profile_form.profile_pic|add_class:"form-input" }}
+        <div class="form-hint">Max 2MB · JPG/PNG only</div>
+      </div>
+
+      <button type="submit" class="btn-update"><i class="fas fa-save"></i> &nbsp; SAVE CHANGES</button>
+    </form>
+
+    <a href="{% url 'change_password' %}" class="btn-change-pw"><i class="fas fa-key"></i> &nbsp; Change Password</a>
+  </div>
+</div>
+{% endblock %}
