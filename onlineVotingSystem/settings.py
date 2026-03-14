@@ -58,17 +58,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'onlineVotingSystem.wsgi.application'
 
-# Database - PostgreSQL in production, SQLite in development
-DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    import dj_database_url
+import dj_database_url
+import os
+
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
         conn_max_age=600
     )
 }
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
